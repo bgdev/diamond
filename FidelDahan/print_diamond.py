@@ -1,4 +1,5 @@
-from unittest import TestCase
+#!/usr/bin/env python3
+from argparse import ArgumentParser
 
 
 class Letter(object):
@@ -9,26 +10,13 @@ class Letter(object):
     self.index = self.ALPHABET.index(char)
 
 
-class LetterTest(TestCase):
-
-  def test_index_of_first_letters(self):
-    self.assertEquals(0, Letter('A').index)
-    self.assertEquals(1, Letter('B').index)
-    self.assertEquals(2, Letter('C').index)
-
-  def test_index_of_last_letters(self):
-    self.assertEquals(23, Letter('X').index)
-    self.assertEquals(24, Letter('Y').index)
-    self.assertEquals(25, Letter('Z').index)
-
-
 class Span(object):
   def __init__(self, letter:Letter):
     self.letter = letter
 
   def render(self):
     if self.letter.char == 'A':
-      return "{}".format(self.letter.char)
+      return "A"
     else:
       space_count = 2 * self.letter.index - 1
       return "{}{}{}".format(self.letter.char,
@@ -36,18 +24,29 @@ class Span(object):
                              self.letter.char)
 
 
-class SpanTest(TestCase):
-  def test_render_first_letters(self):
-    self.assertEquals("A", Span(Letter('A')).render())
-    self.assertEquals("B B", Span(Letter('B')).render())
-    self.assertEquals("C   C", Span(Letter('C')).render())
+class Diamond(object):
+  def __init__(self, of:str):
+    self.equator = Span(Letter(of))
+    letters = [Letter(x) for x in Letter.ALPHABET]
+    self.spans = [Span(x) for x in letters
+                  if x.index < self.equator.letter.index]
 
-  def test_render_last_letters(self):
-    self.assertEquals("X                                             X",
-                      Span(Letter('X')).render())
-    self.assertEquals("Y                                               Y",
-                      Span(Letter('Y')).render())
-    self.assertEquals("Z                                                 Z",
-                      Span(Letter('Z')).render())
+  def render(self):
+    lines_above = [self.indent(x) + x.render() for x in self.spans]
+    lines_below = [self.indent(x) + x.render() for x in reversed(self.spans)]
+    middle_line = [self.equator.render()]
+    return "\n".join(lines_above + middle_line + lines_below)
 
-# TODO
+  def indent(self, span:Span):
+    distance = self.equator.letter.index - span.letter.index
+    return " " * distance
+
+
+def args():
+  parser = ArgumentParser(description="Prints a diamond with the letters A..Z")
+  parser.add_argument("letter", choices=[x for x in Letter.ALPHABET])
+  return parser.parse_args()
+
+
+if __name__ == '__main__':
+  print(Diamond(args().letter).render())
