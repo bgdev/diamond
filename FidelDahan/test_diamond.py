@@ -1,7 +1,4 @@
-from argparse import ArgumentParser
-import os
 from unittest import TestCase
-import sys
 from print_diamond import *
 
 
@@ -41,8 +38,3 @@ class DiamondTest(TestCase):
 
   def test_render_C(self):
     self.assertEqual("  A\n B B\nC   C\n B B\n  A", Diamond('C').render())
-
-
-class EndToEndTest(TestCase):
-  def test(self):
-    os.exec
